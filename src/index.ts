@@ -8,7 +8,7 @@ import * as winapi from 'winapi-bindings';
 
 import { log, types, util } from 'vortex-api';
 
-const STORE_ID = 'goglauncher';
+const STORE_ID = 'gog';
 
 const GOG_EXEC = 'GalaxyClient.exe';
 
