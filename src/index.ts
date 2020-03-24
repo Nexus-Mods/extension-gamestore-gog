@@ -114,14 +114,20 @@ class GoGLauncher implements types.IGameStore {
         winapi.WithRegOpen('HKEY_LOCAL_MACHINE', REG_GOG_GAMES, hkey => {
           const keys = winapi.RegEnumKeys(hkey);
           const gameEntries: types.IGameStoreEntry[] = keys.map(key => {
-            const gameEntry: types.IGameStoreEntry = {
-              appid: winapi.RegGetValue(hkey, key.key, 'gameID').value as string,
-              gamePath: winapi.RegGetValue(hkey, key.key, 'workingDir').value as string,
-              name: winapi.RegGetValue(hkey, key.key, 'startMenu').value as string,
-              gameStoreId: STORE_ID,
-            };
-            return gameEntry;
-          });
+            try {
+              const gameEntry: types.IGameStoreEntry = {
+                appid: winapi.RegGetValue(hkey, key.key, 'gameID').value as string,
+                gamePath: winapi.RegGetValue(hkey, key.key, 'path').value as string,
+                name: winapi.RegGetValue(hkey, key.key, 'startMenu').value as string,
+                gameStoreId: STORE_ID,
+              };
+              return gameEntry;
+            } catch (err) {
+              log('error', 'gamestore-gog: failed to create game entry', err);
+              // Don't stop, keep going.
+              return undefined;
+            }
+          }).filter(entry => !!entry);
           return resolve(gameEntries);
         });
       } catch (err) {
