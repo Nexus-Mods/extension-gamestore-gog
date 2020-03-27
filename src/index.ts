@@ -33,10 +33,11 @@ class GoGLauncher implements types.IGameStore {
         this.mClientPath = Promise.resolve(gogPath.value as string);
       } catch (err) {
         log('info', 'gog not found', { error: err.message });
-        this.mClientPath = Promise.resolve(undefined);
+        this.mClientPath = undefined;
       }
     } else {
       log('info', 'gog not found', { error: 'only available on Windows systems' });
+      this.mClientPath = undefined;
     }
   }
 
@@ -109,31 +110,33 @@ class GoGLauncher implements types.IGameStore {
   }
 
   private getGameEntries(): Promise<types.IGameStoreEntry[]> {
-    return new Promise<types.IGameStoreEntry[]>((resolve, reject) => {
-      try {
-        winapi.WithRegOpen('HKEY_LOCAL_MACHINE', REG_GOG_GAMES, hkey => {
-          const keys = winapi.RegEnumKeys(hkey);
-          const gameEntries: types.IGameStoreEntry[] = keys.map(key => {
-            try {
-              const gameEntry: types.IGameStoreEntry = {
-                appid: winapi.RegGetValue(hkey, key.key, 'gameID').value as string,
-                gamePath: winapi.RegGetValue(hkey, key.key, 'path').value as string,
-                name: winapi.RegGetValue(hkey, key.key, 'startMenu').value as string,
-                gameStoreId: STORE_ID,
-              };
-              return gameEntry;
-            } catch (err) {
-              log('error', 'gamestore-gog: failed to create game entry', err);
-              // Don't stop, keep going.
-              return undefined;
-            }
-          }).filter(entry => !!entry);
-          return resolve(gameEntries);
-        });
-      } catch (err) {
-        return reject(err);
-      }
-    });
+    return (!!this.mClientPath)
+      ? new Promise<types.IGameStoreEntry[]>((resolve, reject) => {
+        try {
+          winapi.WithRegOpen('HKEY_LOCAL_MACHINE', REG_GOG_GAMES, hkey => {
+            const keys = winapi.RegEnumKeys(hkey);
+            const gameEntries: types.IGameStoreEntry[] = keys.map(key => {
+              try {
+                const gameEntry: types.IGameStoreEntry = {
+                  appid: winapi.RegGetValue(hkey, key.key, 'gameID').value as string,
+                  gamePath: winapi.RegGetValue(hkey, key.key, 'path').value as string,
+                  name: winapi.RegGetValue(hkey, key.key, 'startMenu').value as string,
+                  gameStoreId: STORE_ID,
+                };
+                return gameEntry;
+              } catch (err) {
+                log('error', 'gamestore-gog: failed to create game entry', err);
+                // Don't stop, keep going.
+                return undefined;
+              }
+            }).filter(entry => !!entry);
+            return resolve(gameEntries);
+          });
+        } catch (err) {
+          return (err.code === 'ENOENT') ? resolve([]) : reject(err);
+        }
+    })
+    : Promise.resolve([]);
   }
 }
 
