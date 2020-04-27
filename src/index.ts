@@ -89,10 +89,14 @@ class GoGLauncher implements types.IGameStore {
   /**
    * find the first game with the specified appid or one of the specified appids
    */
-  public findByAppId(appId: string): Promise<types.IGameStoreEntry> {
+  public findByAppId(appId: string | string[]): Promise<types.IGameStoreEntry> {
+    const matcher = Array.isArray(appId)
+      ? (entry: types.IGameStoreEntry) => (appId.includes(entry.appid))
+      : (entry: types.IGameStoreEntry) => (appId === entry.appid);
+
     return this.allGames()
       .then(entries => {
-        const gameEntry = entries.find(entry => entry.appid === appId);
+        const gameEntry = entries.find(matcher);
         if (gameEntry === undefined) {
           return Promise.reject(
             new types.GameEntryNotFound(Array.isArray(appId) ? appId.join(', ') : appId, STORE_ID));
@@ -107,6 +111,12 @@ class GoGLauncher implements types.IGameStore {
       this.mCache = this.getGameEntries();
     }
     return this.mCache;
+  }
+
+  public getGameStorePath(): Promise<string> {
+    return (!!this.mClientPath)
+      ? this.mClientPath.then(basePath => Promise.resolve(path.join(basePath, 'GalaxyClient.exe')))
+      : Promise.resolve(undefined);
   }
 
   private getGameEntries(): Promise<types.IGameStoreEntry[]> {
