@@ -13,7 +13,7 @@
   "devDependencies": {
     "bluebird": "^3.5.0",
     "ts-loader": "^4.4.2",
-    "vortex-api": "Nexus-Mods/vortex-api#electron7",
+    "vortex-api": "Nexus-Mods/vortex-api",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.3.10",
     "winapi-bindings": "Nexus-Mods/node-winapi-bindings"
