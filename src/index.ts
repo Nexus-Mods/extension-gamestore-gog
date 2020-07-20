@@ -45,7 +45,7 @@ class GoGLauncher implements types.IGameStore {
    * find the first game that matches the specified name pattern
    */
   public findByName(namePattern: string): Promise<types.IGameStoreEntry> {
-    const re = new RegExp(namePattern);
+    const re = new RegExp('^' + namePattern + '$');
     return this.allGames()
       .then(entries => entries.find(entry => re.test(entry.name)))
       .then(entry => {
