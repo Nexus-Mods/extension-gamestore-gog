@@ -113,6 +113,13 @@ class GoGLauncher implements types.IGameStore {
     return this.mCache;
   }
 
+  public reloadGames(): Promise<void> {
+    return new Promise((resolve) => {
+      this.mCache = this.getGameEntries();
+      return resolve();
+    });
+  }
+
   public getGameStorePath(): Promise<string> {
     return (!!this.mClientPath)
       ? this.mClientPath.then(basePath => Promise.resolve(path.join(basePath, 'GalaxyClient.exe')))
