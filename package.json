@@ -11,15 +11,13 @@
   "author": "Black Tree Gaming Ltd.",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@types/node": "^12.12.14",
     "bluebird": "^3.5.0",
     "ts-loader": "^4.4.2",
+    "typescript": "^3.7.2",
     "vortex-api": "Nexus-Mods/vortex-api",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.3.10",
     "winapi-bindings": "Nexus-Mods/node-winapi-bindings"
-  },
-  "dependencies": {
-    "@types/node": "^12.12.14",
-    "typescript": "^3.7.2"
   }
 }
