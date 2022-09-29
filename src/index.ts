@@ -3,10 +3,7 @@ import * as Promise from 'bluebird';
 import * as path from 'path';
 import * as winapi from 'winapi-bindings';
 
-// import { GameEntryNotFound, IExecInfo,
-//   IGameStore, IGameStoreEntry } from '../types/api';
-
-import { log, types, util } from 'vortex-api';
+import { fs, log, types } from 'vortex-api';
 
 const STORE_ID = 'gog';
 
@@ -124,6 +121,14 @@ class GoGLauncher implements types.IGameStore {
     return (!!this.mClientPath)
       ? this.mClientPath.then(basePath => Promise.resolve(path.join(basePath, 'GalaxyClient.exe')))
       : Promise.resolve(undefined);
+  }
+
+  public identifyGame(gamePath: string,
+                      fallback: (gamePath: string) => PromiseLike<boolean>)
+                      : Promise<boolean> {
+    return fs.statAsync(path.join(gamePath, 'gog.ico'))
+      .then(() => true)
+      .catch(() => fallback(gamePath));
   }
 
   private getGameEntries(): Promise<types.IGameStoreEntry[]> {
