@@ -6,6 +6,9 @@ import * as winapi from 'winapi-bindings';
 import { fs, log, types } from 'vortex-api';
 
 const STORE_ID = 'gog';
+const STORE_NAME = 'GOG';
+// no DRM, does it get better than this?
+const STORE_PRIORITY = 15;
 
 const GOG_EXEC = 'GalaxyClient.exe';
 
@@ -16,12 +19,13 @@ const REG_GOG_GAMES = 'SOFTWARE\\WOW6432Node\\GOG.com\\Games';
  * @class GoGLauncher
  */
 class GoGLauncher implements types.IGameStore {
-  public id: string;
+  public id: string = STORE_ID;
+  public name: string = STORE_NAME;
+  public priority: number = STORE_PRIORITY;
   private mClientPath: Promise<string>;
   private mCache: Promise<types.IGameStoreEntry[]>;
 
   constructor() {
-    this.id = STORE_ID;
     if (process.platform === 'win32') {
       // No Windows, no gog launcher!
       try {
