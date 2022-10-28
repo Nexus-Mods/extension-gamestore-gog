@@ -130,9 +130,23 @@ class GoGLauncher implements types.IGameStore {
   public identifyGame(gamePath: string,
                       fallback: (gamePath: string) => PromiseLike<boolean>)
                       : Promise<boolean> {
-    return fs.statAsync(path.join(gamePath, 'gog.ico'))
+    return Promise.all([this.fileExists(path.join(gamePath, 'gog.ico')), fallback(gamePath)])
+      .then(([custom, fallback]) => {
+        if (custom !== fallback) {
+          log('warn', '(gog) game identification inconclusive', {
+            gamePath,
+            custom,
+            fallback,
+          });
+        }
+        return custom || fallback;
+      });
+  }
+
+  private fileExists(filePath: string): PromiseLike<boolean> {
+    return fs.statAsync(filePath)
       .then(() => true)
-      .catch(() => fallback(gamePath));
+      .catch(() => false);
   }
 
   private getGameEntries(): Promise<types.IGameStoreEntry[]> {
